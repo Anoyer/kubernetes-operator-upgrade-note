@@ -125,11 +125,11 @@ func (r *ApplicationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		})).
 		Owns(&appsv1.Deployment{}, builder.WithPredicates(predicate.Funcs{
 			CreateFunc: func(event event.CreateEvent) bool {
-				return true
+				return false
 			},
 			DeleteFunc: func(event event.DeleteEvent) bool {
 				setupLog.Info("The Deployment has been deleted", "name", event.Object.GetName())
-				return false
+				return true
 			},
 			UpdateFunc: func(event event.UpdateEvent) bool {
 				if event.ObjectNew.GetResourceVersion() == event.ObjectOld.GetResourceVersion() {
@@ -143,11 +143,11 @@ func (r *ApplicationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		})).
 		Owns(&corev1.Service{}, builder.WithPredicates(predicate.Funcs{
 			CreateFunc: func(event event.CreateEvent) bool {
-				return true
+				return false
 			},
 			DeleteFunc: func(event event.DeleteEvent) bool {
 				setupLog.Info("The Service has been deleted", "name", event.Object.GetName())
-				return false
+				return true
 			},
 			UpdateFunc: func(event event.UpdateEvent) bool {
 				if event.ObjectNew.GetResourceVersion() == event.ObjectOld.GetResourceVersion() {
@@ -169,7 +169,8 @@ func (r *ApplicationReconciler) reconcileDeployment(ctx context.Context, app *v1
 	err := r.Get(ctx, types.NamespacedName{
 		Namespace: app.Namespace,
 		Name:      app.Name,
-	}, app)
+	}, dp)
+
 	if err == nil {
 		log.Info("The deployment already exists")
 		if reflect.DeepEqual(dp.Status, app.Status.Workflow) {

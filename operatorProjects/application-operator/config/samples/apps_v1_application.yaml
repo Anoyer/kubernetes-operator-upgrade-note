@@ -2,6 +2,7 @@ apiVersion: apps.danielhu.cn/v1
 kind: Application
 metadata:
   labels:
+    name: application-sample
     app.kubernetes.io/name: application
     app.kubernetes.io/instance: application-sample
     app.kubernetes.io/part-of: application-operator
@@ -9,4 +10,45 @@ metadata:
     app.kubernetes.io/created-by: application-operator
   name: application-sample
 spec:
+  deployment:
+      replicas: 3
+      selector:
+        matchLabels:
+          name: application-sample
+          app.kubernetes.io/name: application
+          app.kubernetes.io/instance: application-sample
+          app.kubernetes.io/part-of: application-operator
+          app.kubernetes.io/managed-by: kustomize
+          app.kubernetes.io/created-by: application-operator
+      template:
+        metadata:
+          labels:
+            name: application-sample
+            app.kubernetes.io/name: application
+            app.kubernetes.io/instance: application-sample
+            app.kubernetes.io/part-of: application-operator
+            app.kubernetes.io/managed-by: kustomize
+            app.kubernetes.io/created-by: application-operator
+        spec:
+          containers:
+            - name: nginx
+              image: docker.io/library/nginx:1.16
+              ports:
+                - containerPort: 80
+
+  service:
+      selector:
+        name: application-sample
+        app.kubernetes.io/name: application
+        app.kubernetes.io/instance: application-sample
+        app.kubernetes.io/part-of: application-operator
+        app.kubernetes.io/managed-by: kustomize
+        app.kubernetes.io/created-by: application-operator
+      ports:
+        - port: 80
+          targetPort: 80
+          nodePort: 30080
+          protocol: TCP
+      type: NodePort
+
   # TODO(user): Add fields here
